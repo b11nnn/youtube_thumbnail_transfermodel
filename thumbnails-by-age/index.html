@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Thumbnails by Age</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Companion site for our ASIS&amp;T 2026 poster: age-aware YouTube thumbnail samples and findings from a four-category study of 9,586 Korean YouTube videos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout concept: a pastel "split-screen" studio sheet. The diagonal split that marks a 65+ thumbnail
+   becomes the page's motif; periwinkle = 18–34, peach = 65+, everywhere. */
+:root{
+  --bg:#F8F7FD; --surface:#FFFFFF; --ink:#2B2840; --muted:#6B6784; --line:#E6E3F2;
+  --young:#8DB4EE; --young-soft:#E4EEFC; --young-ink:#2E5C9C;
+  --old:#F3A78A; --old-soft:#FDE8DF; --old-ink:#A44E2E;
+  --mint:#D3F0E5; --mint-ink:#2D6B57; --butter:#FFF2C9; --lav:#ECE6FB; --lav-ink:#5B4A9A;
+  --shadow:0 1px 2px rgba(43,40,64,.06),0 8px 24px rgba(43,40,64,.06);
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Helvetica Neue","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17161F; --surface:#211F2C; --ink:#EEECF7; --muted:#A7A3BE; --line:#34314A;
+  --young:#9CC2F5; --young-soft:#22314A; --young-ink:#BCD6FA;
+  --old:#F5B49B; --old-soft:#43291F; --old-ink:#F9C9B6;
+  --mint:#1E3A31; --mint-ink:#A9E3CE; --butter:#3A3320; --lav:#2B2542; --lav-ink:#CFC2F7;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17161F; --surface:#211F2C; --ink:#EEECF7; --muted:#A7A3BE; --line:#34314A;
+  --young:#9CC2F5; --young-soft:#22314A; --young-ink:#BCD6FA;
+  --old:#F5B49B; --old-soft:#43291F; --old-ink:#F9C9B6;
+  --mint:#1E3A31; --mint-ink:#A9E3CE; --butter:#3A3320; --lav:#2B2542; --lav-ink:#CFC2F7;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.1;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(28px,4vw,42px);font-weight:800}
+h3{font-size:21px;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lead{font-size:clamp(17px,2vw,19px);color:var(--muted);max-width:62ch}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--young);outline-offset:3px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:20px;height:58px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:18px;text-decoration:none;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.brand-mark{width:26px;height:18px;border-radius:5px;background:linear-gradient(115deg,var(--old) 0 50%,var(--young) 50% 100%)}
+.nav-links{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{text-decoration:none;font-size:14px;font-weight:600;color:var(--muted);padding:6px 10px;border-radius:999px;white-space:nowrap}
+.nav-links a:hover{background:var(--lav);color:var(--ink)}
+@media (max-width:720px){.nav-links{display:none}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(112deg,var(--young-soft) 0 52%,var(--old-soft) 52% 100%);opacity:.9}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center;padding-block:64px 72px}
+.hero h1{font-size:clamp(40px,6.4vw,76px);font-weight:800;margin:14px 0 18px}
+.hero h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--butter) 62%);padding:0 .08em}
+.hero .lead{color:var(--ink);opacity:.82}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.pill.y{background:var(--young-soft);color:var(--young-ink);border-color:transparent}
+.pill.o{background:var(--old-soft);color:var(--old-ink);border-color:transparent}
+.pill.m{background:var(--mint);color:var(--mint-ink);border-color:transparent}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.dot.y{background:var(--young)} .dot.o{background:var(--old)}
+@media (max-width:860px){.hero .wrap{grid-template-columns:1fr;gap:32px;padding-block:44px 52px}}
+
+.viewer{background:var(--surface);border-radius:22px;padding:14px;box-shadow:var(--shadow)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--bg);border-radius:999px;padding:4px;margin-bottom:12px}
+.seg button{all:unset;cursor:pointer;text-align:center;font-weight:700;font-size:14px;padding:8px 10px;border-radius:999px;color:var(--muted);display:flex;justify-content:center;align-items:center;gap:7px}
+.seg button[aria-pressed="true"].y{background:var(--young-soft);color:var(--young-ink)}
+.seg button[aria-pressed="true"].o{background:var(--old-soft);color:var(--old-ink)}
+.seg button:focus-visible{outline:3px solid var(--young)}
+.thumb{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:14px;overflow:hidden;background:var(--line)}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .35s ease}
+.thumb img.off{opacity:0}
+.thumb .tag{position:absolute;right:8px;bottom:8px;font-family:var(--f-mono);font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(20,18,30,.82);color:#fff}
+.viewer-cap{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-top:12px;font-size:14px;color:var(--muted)}
+.viewer-cap b{color:var(--ink);font-weight:700}
+
+/* sections */
+section{padding-block:80px}
+section + section{border-top:1px solid var(--line)}
+.sec-head{display:grid;gap:12px;margin-bottom:36px;max-width:780px}
+.band-lav{background:var(--lav)}
+.band-lav + section,.band-lav{border-top:0}
+
+/* legend */
+.key{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px}
+.key-card{border-radius:18px;padding:22px;display:grid;gap:12px;grid-template-columns:96px 1fr;align-items:start}
+.key-card.y{background:var(--young-soft)} .key-card.o{background:var(--old-soft)}
+.key-card h3{font-size:19px;margin-bottom:4px}
+.key-card.y h3{color:var(--young-ink)} .key-card.o h3{color:var(--old-ink)}
+.key-card ul{margin:0;padding-left:18px;font-size:15px}
+.key-card li+li{margin-top:3px}
+.mini{aspect-ratio:16/9;border-radius:8px;position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.mini.full::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 70% 45%,var(--young) 0 22%,transparent 23%),linear-gradient(160deg,var(--young-soft),var(--surface))}
+.mini.full::after{content:"";position:absolute;left:10%;bottom:16%;width:38%;height:10%;border-radius:2px;background:var(--young-ink);opacity:.7}
+.mini.split::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,var(--old) 0 54%,var(--surface) 54%)}
+.mini.split::after{content:"";position:absolute;left:8%;top:22%;width:40%;height:46%;background:repeating-linear-gradient(var(--ink) 0 18%,transparent 18% 34%);opacity:.75}
+@media (max-width:760px){.key{grid-template-columns:1fr}.key-card{grid-template-columns:80px 1fr}}
+
+/* samples */
+.samples{display:grid;gap:28px}
+.sample{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px}
+.sample-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline;margin-bottom:16px}
+.sample-head .tr{font-size:14px;color:var(--muted);max-width:60ch}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.pair figure{margin:0;display:grid;gap:10px;min-width:0}
+.pair figcaption{display:grid;gap:8px}
+.changes{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.changes li{font-size:13px;font-weight:600;padding:4px 10px;border-radius:8px}
+.y .changes li{background:var(--young-soft);color:var(--young-ink)}
+.o .changes li{background:var(--old-soft);color:var(--old-ink)}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+
+/* study stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.stat{background:var(--surface);border-radius:18px;padding:18px 20px}
+.stat b{display:block;font-family:var(--f-display);font-size:clamp(28px,3.4vw,40px);font-weight:800;line-height:1.05}
+.stat span{font-size:14px;color:var(--muted)}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+.two{display:grid;grid-template-columns:1.1fr 1fr;gap:20px}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+.panel{background:var(--surface);border-radius:20px;padding:22px;min-width:0}
+.panel h3{margin-bottom:12px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12px;font-family:var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+td.r,th.r{text-align:right}
+tr:last-child td{border-bottom:0}
+.steps{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.steps li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.steps .ic{font-family:var(--f-mono);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:7px;background:var(--lav);color:var(--lav-ink);min-width:78px;text-align:center}
+.steps p{font-size:15px}
+.steps p b{display:block;font-weight:700}
+
+/* explorer */
+.explorer{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start}
+@media (max-width:860px){.explorer{grid-template-columns:1fr}}
+.chips{display:flex;flex-direction:column;gap:14px}
+.chip-group{display:flex;flex-wrap:wrap;gap:6px}
+.chip-group .eyebrow{width:100%;margin-bottom:2px}
+.chip{all:unset;cursor:pointer;font-size:14px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.chip:hover{border-color:var(--young)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible{outline:3px solid var(--young);outline-offset:2px}
+.chart-card{background:var(--surface);border-radius:20px;padding:22px;min-width:0}
+.chart-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;align-items:baseline}
+.chart-top h3{font-size:22px}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+#chart{width:100%;height:auto;display:block;margin-top:10px}
+#chart text{font-family:var(--f-body);fill:var(--ink)}
+#chart .tick{fill:var(--muted);font-size:12px}
+#chart .cat{font-weight:700;font-size:13px;font-family:var(--f-mono)}
+#chart .val{font-size:12px;font-weight:600}
+#chart .sig{font-size:14px;font-weight:700;fill:var(--muted)}
+.chart-note{margin-top:10px;font-size:15px;padding:12px 14px;border-radius:12px;background:var(--bg)}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.sum div{border-radius:18px;padding:18px 20px;font-size:15px}
+.sum .y{background:var(--young-soft)} .sum .o{background:var(--old-soft)}
+.sum h3{font-size:17px;margin-bottom:8px}
+.sum .y h3{color:var(--young-ink)} .sum .o h3{color:var(--old-ink)}
+.sum ul{margin:0;padding-left:18px}
+@media (max-width:760px){.sum{grid-template-columns:1fr}}
+
+/* model */
+.bars{display:grid;gap:14px}
+.bar-row{display:grid;grid-template-columns:62px 1fr;gap:12px;align-items:center}
+.bar-row b{font-family:var(--f-mono);font-size:13px}
+.bar{display:flex;height:34px;border-radius:10px;overflow:hidden;font-size:12px;font-weight:700}
+.bar span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;color:#2B2840}
+.seg-text{background:#F7D774} .seg-person{background:#B9E4C9} .seg-bg{background:#D9D4EC}
+.bar-key{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:4px}
+.bar-key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.auc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.auc div{border-radius:14px;padding:14px 16px}
+.auc .y{background:var(--young-soft)} .auc .o{background:var(--old-soft)}
+.auc b{font-family:var(--f-display);font-size:26px;font-weight:800;display:block;line-height:1.1}
+.auc small{font-size:13px;color:var(--muted)}
+.cams{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.cams figure{margin:0;background:var(--surface);border-radius:18px;padding:12px;min-width:0}
+.cams img{width:100%;height:auto;border-radius:10px;display:block}
+.cams figcaption{font-size:14px;margin-top:8px;color:var(--muted)}
+.cams figcaption b{color:var(--ink)}
+@media (max-width:760px){.cams{grid-template-columns:1fr}}
+
+/* categories */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.tab{all:unset;cursor:pointer;font-family:var(--f-display);font-weight:700;font-size:16px;padding:9px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab:focus-visible{outline:3px solid var(--young);outline-offset:2px}
+.cat-top{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.vs > div{border-radius:20px;padding:20px;min-width:0}
+.vs .y{background:var(--young-soft)} .vs .o{background:var(--old-soft)}
+.vs h3{font-size:18px;margin-bottom:12px}
+.vs .y h3{color:var(--young-ink)} .vs .o h3{color:var(--old-ink)}
+.lbl{font-family:var(--f-mono);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.lbl:first-of-type{margin-top:0}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.words span{background:var(--surface);border-radius:8px;padding:3px 9px;font-size:14px;font-weight:600}
+.words span.big{font-size:17px;font-family:var(--f-display);font-weight:800}
+.theme{font-weight:700;font-size:16px}
+.cues{font-size:14px;color:var(--muted)}
+@media (max-width:760px){.vs{grid-template-columns:1fr}}
+.cat-extra{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:860px){.cat-extra{grid-template-columns:1fr}}
+.prev{display:grid;gap:12px}
+.prev-row{display:grid;gap:5px}
+.prev-row .nm{display:flex;justify-content:space-between;gap:10px;font-size:14px;font-weight:600}
+.prev-row .nm small{font-family:var(--f-mono);color:var(--muted);font-weight:500;white-space:nowrap}
+.prev-bar{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:center;font-size:12px;font-family:var(--f-mono);color:var(--muted)}
+.prev-bar div{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.prev-bar i{display:block;height:100%;border-radius:5px}
+.callout{border-radius:20px;padding:20px;background:var(--butter);font-size:15px}
+.callout h3{font-size:17px;margin-bottom:8px}
+.callout p+p{margin-top:8px}
+.f1{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.f1 span{background:var(--surface);border-radius:10px;padding:6px 10px;font-size:13px}
+.f1 b{font-family:var(--f-mono)}
+
+/* next */
+.next{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:stretch}
+@media (max-width:860px){.next{grid-template-columns:1fr}}
+.next-main{background:var(--mint);border-radius:24px;padding:30px;display:grid;gap:14px;align-content:start}
+.next-main h2{font-size:clamp(26px,3.4vw,36px)}
+.next-main p{max-width:56ch}
+.status{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mint-ink)}
+.status::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--mint-ink);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.done{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.done li{background:var(--surface);border-radius:16px;padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;font-size:15px}
+.done .st{font-family:var(--f-mono);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.st.ok{background:var(--lav);color:var(--lav-ink)} .st.now{background:var(--mint);color:var(--mint-ink)}
+
+footer{padding-block:44px 56px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:24px}
+footer b{color:var(--ink)}
+footer p+p{margin-top:8px}
+.copy{all:unset;cursor:pointer;font-family:var(--f-mono);font-size:13px;color:var(--ink);padding:6px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line);display:inline-block;margin-top:6px;user-select:all}
+@media (max-width:760px){footer .wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+
+<nav class="nav" aria-label="Sections">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>Thumbnails by Age</a>
+    <div class="nav-links">
+      <a href="#samples">Samples</a>
+      <a href="#study">Study</a>
+      <a href="#patterns">Patterns</a>
+      <a href="#model">Model</a>
+      <a href="#categories">Categories</a>
+      <a href="#next">What's next</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Poster companion · ASIS&amp;T 2026 Annual Meeting</span>
+      <h1>Same video, <em>two audiences.</em></h1>
+      <p class="lead">We studied how YouTube thumbnails and titles differ between channels watched mostly by viewers aged 18–34 and channels watched mostly by viewers aged 65+. Then we used those findings to redesign education thumbnails for each group.</p>
+      <div class="hero-meta">
+        <span class="pill y"><span class="dot y"></span>Full-bleed scene = 18–34 version</span>
+        <span class="pill o"><span class="dot o"></span>Split background = 65+ version</span>
+      </div>
+    </div>
+    <div class="viewer" aria-label="Thumbnail comparison">
+      <div class="seg" role="group" aria-label="Choose audience">
+        <button type="button" class="y" id="hero-y" aria-pressed="true" data-v="y"><span class="dot y"></span>For 18–34</button>
+        <button type="button" class="o" id="hero-o" aria-pressed="false" data-v="o"><span class="dot o"></span>For 65+</button>
+      </div>
+      <div class="thumb">
+        <img id="hero-img-y" src="assets/grammar-1834.jpg" alt="18–34 version: full-bleed study-notes background with a highlighted hook">
+        <img id="hero-img-o" class="off" src="assets/grammar-65.jpg" alt="65+ version: cream and navy split background with large title text">
+        <span class="tag" id="hero-tag">18–34</span>
+      </div>
+      <div class="viewer-cap">
+        <p><b>English grammar lesson.</b> <span id="hero-note">Busy study-notes background, short hook in a highlighted box.</span></p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="samples">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Design samples · EDU category</span>
+      <h2>Education thumbnails, redesigned for each age group</h2>
+      <p class="lead">For each education video, we made two thumbnails from the same footage. One follows the visual patterns of channels watched mostly by 18–34 viewers. The other follows the patterns of channels watched mostly by viewers aged 65+.</p>
+    </div>
+
+    <div class="key">
+      <div class="key-card y">
+        <div class="mini full" aria-hidden="true"></div>
+        <div>
+          <h3>18–34 recipe</h3>
+          <ul>
+            <li>Full-bleed scene, no color panel</li>
+            <li>Brighter overall image (EDU mean brightness 134 vs 101)</li>
+            <li>Less of the frame given to text (26.5% vs 39.6%)</li>
+            <li>Softer contrast between text and background</li>
+          </ul>
+        </div>
+      </div>
+      <div class="key-card o">
+        <div class="mini split" aria-hidden="true"></div>
+        <div>
+          <h3>65+ recipe</h3>
+          <ul>
+            <li>Split background with a solid text panel</li>
+            <li>Larger, bolder on-image text</li>
+            <li>Stronger text–background contrast (saturation gap 26.9 vs 13.8)</li>
+            <li>More saturated color (84.3 vs 75.4)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="samples" id="sample-list"></div>
+  </div>
+</section>
+
+<section id="study" class="band-lav">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Extended study</span>
+      <h2>Behind the samples: four categories, 9,586 videos</h2>
+      <p class="lead">After the current-affairs analysis on our poster, we extended the same approach to four informational categories of Korean YouTube. In each category we compared channels whose main audience is 18–34 with channels whose main audience is 65+, using equal numbers of videos per group.</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b class="num">9,586</b><span>videos</span></div>
+      <div class="stat"><b class="num">3,241</b><span>Korean-language channels</span></div>
+      <div class="stat"><b class="num">4</b><span>categories, balanced 50:50 by age group</span></div>
+      <div class="stat"><b class="num">78.4%</b><span>accuracy guessing the age group from the thumbnail alone</span></div>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <h3>Data</h3>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Category</th><th>Subcategory</th><th class="r">Videos</th><th class="r">Per group</th></tr></thead>
+            <tbody>
+              <tr><td><b>EDU</b></td><td>Psychology education</td><td class="r num">2,496</td><td class="r num">1,248</td></tr>
+              <tr><td><b>HEALTH</b></td><td>Wellness</td><td class="r num">2,500</td><td class="r num">1,250</td></tr>
+              <tr><td><b>LIFESTYLE</b></td><td>Meditation</td><td class="r num">1,990</td><td class="r num">995</td></tr>
+              <tr><td><b>SOCIETY</b></td><td>Current affairs</td><td class="r num">2,600</td><td class="r num">1,300</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:14px;color:var(--muted);margin-top:12px">Age groups are channel-level labels: the main audience of each channel, from Vling audience data. Categories were chosen for viewership spread evenly across ages.</p>
+      </div>
+      <div class="panel">
+        <h3>How we analyzed each video</h3>
+        <ul class="steps">
+          <li><span class="ic">Locate</span><p><b>Where does the age signal sit?</b>A DINOv3 classifier with Grad-CAM shows which image regions predict each group.</p></li>
+          <li><span class="ic">Measure</span><p><b>13 visual features</b>Text area (OCR), color, people and estimated face age, and an AI-image score.</p></li>
+          <li><span class="ic">Describe</span><p><b>What the scene shows</b>LLaVA captions grouped into scene themes with BERTopic, plus SHAP keywords.</p></li>
+          <li><span class="ic">Read</span><p><b>How titles are written</b>26 title features and a KLUE-RoBERTa model explained with LIME.</p></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="patterns">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Cross-category patterns</span>
+      <h2>Some differences show up in every category</h2>
+      <p class="lead">Pick a feature to compare the two age groups across all four categories. Formal features such as text amount, contrast and title length point the same way almost everywhere.</p>
+    </div>
+    <div class="explorer">
+      <div class="chips" id="chips"></div>
+      <div class="chart-card">
+        <div class="chart-top">
+          <h3 id="chart-title">Text area ratio</h3>
+          <div class="legend"><span><span class="dot y"></span>18–34</span><span><span class="dot o"></span>65+</span></div>
+        </div>
+        <svg id="chart" viewBox="0 0 640 260" role="img" aria-labelledby="chart-title"></svg>
+        <p class="chart-note" id="chart-note"></p>
+        <p style="font-size:13px;color:var(--muted);margin-top:8px">Group means. Stars mark two-sided Mann–Whitney U tests: *** p &lt; .001, ** p &lt; .01, * p &lt; .05, n.s. = not significant.</p>
+      </div>
+    </div>
+    <div class="sum">
+      <div class="o">
+        <h3>Recurring in 65+ channels</h3>
+        <ul>
+          <li>More on-image text and sharper text–background contrast</li>
+          <li>More saturated, darker thumbnails; older-looking faces</li>
+          <li>Longer titles, complete sentences, list patterns ("5 ways…")</li>
+          <li>More native Korean vocabulary</li>
+        </ul>
+      </div>
+      <div class="y">
+        <h3>Recurring in 18–34 channels</h3>
+        <ul>
+          <li>Brighter images with little text</li>
+          <li>Text that blends into a cohesive overall tone</li>
+          <li>More brackets and emojis in titles</li>
+          <li>More loanwords and newer expressions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Where the model looks</span>
+      <h2>For 65+ thumbnails, the signal sits on text and people</h2>
+      <p class="lead">We took the 50 most confident correct predictions per group and measured how the Grad-CAM heatmap energy was split across text, people and background.</p>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <h3>Share of heatmap energy</h3>
+        <div class="bars">
+          <div class="bar-row"><b>18–34</b><div class="bar"><span class="seg-text" style="width:7%"></span><span class="seg-person" style="width:20.6%">20.6%</span><span class="seg-bg" style="width:72.4%">72.4%</span></div></div>
+          <div class="bar-row"><b>65+</b><div class="bar"><span class="seg-text" style="width:31%">31.0%</span><span class="seg-person" style="width:25.1%">25.1%</span><span class="seg-bg" style="width:43.9%">43.9%</span></div></div>
+        </div>
+        <div class="bar-key"><span><i class="seg-text"></i>Text (7.0% vs 31.0%)</span><span><i class="seg-person"></i>People</span><span><i class="seg-bg"></i>Background</span></div>
+        <div class="auc">
+          <div class="y"><small>18–34 · deletion / insertion AUC</small><b class="num">.871 / .900</b><small>Removing any region barely changes the prediction.</small></div>
+          <div class="o"><small>65+ · deletion / insertion AUC</small><b class="num">.494 / .725</b><small>Removing key regions quickly breaks the prediction.</small></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>What this means for design</h3>
+        <p style="font-size:15px">The 18–34 signal is spread across the whole scene, so no single element carries it. The 65+ signal is concentrated: large text and people do most of the work.</p>
+        <p style="font-size:15px;margin-top:10px">This is why the 65+ samples put the title on its own solid panel. The 18–34 samples keep the scene intact and let the image carry the mood.</p>
+        <p style="font-size:14px;color:var(--muted);margin-top:14px">Thumbnail-only accuracy by category: EDU 82.2%, HEALTH 72.1%, LIFESTYLE 86.7%, SOCIETY 74.9%.</p>
+      </div>
+    </div>
+    <div class="cams">
+      <figure>
+        <img src="assets/gradcam-1834.jpg" alt="Grad-CAM examples for 18–34 thumbnails in EDU, HEALTH, LIFESTYLE and SOCIETY, with activation spread across the scene" width="1100" height="1407">
+        <figcaption><b>18–34 examples.</b> Activation spreads across the whole scene. Columns: original, overlay, heatmap.</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/gradcam-65.jpg" alt="Grad-CAM examples for 65+ thumbnails in EDU, HEALTH, LIFESTYLE and SOCIETY, with activation concentrated on text and faces" width="1100" height="1407">
+        <figcaption><b>65+ examples.</b> Activation concentrates on large text and people. Rows: EDU, HEALTH, LIFESTYLE, SOCIETY.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="categories" class="band-lav">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Category by category</span>
+      <h2>Meaning changes with the topic</h2>
+      <p class="lead">Unlike the formal features, what the thumbnails and titles are about differs by category. Both groups cover a similar topic, but each brings a different side of it to the front.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Categories" id="tabs"></div>
+    <div id="cat-panel" role="tabpanel"></div>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap">
+    <div class="next">
+      <div class="next-main">
+        <span class="status">In progress</span>
+        <h2>Do viewers actually prefer their version?</h2>
+        <p>We are running a user study to test whether thumbnails built from these age-specific features are preferred by viewers in each age group. The EDU samples on this page are the first designs from that work.</p>
+      </div>
+      <ul class="done">
+        <li><span class="st ok">Done</span><span><b>Current-affairs analysis</b><br>6,758 videos, the study on our poster.</span></li>
+        <li><span class="st ok">Done</span><span><b>Four-category extension</b><br>EDU, HEALTH, LIFESTYLE and SOCIETY; 9,586 videos.</span></li>
+        <li><span class="st ok">Done</span><span><b>Age-aware EDU samples</b><br>Four topics, each in an 18–34 and a 65+ version.</span></li>
+        <li><span class="st now">Now</span><span><b>User study</b><br>Preference testing with viewers from each age group.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p><b>Heeseok Yang, Yena Lee, Jeongbin Lee, Jungeun Baik, Jangwon Lee</b> · Sungkyunkwan University</p>
+      <p>Companion site for our poster "Age-Differentiated Multimodal Style in YouTube Thumbnails and Titles," 89th ASIS&amp;T Annual Meeting, Bangkok, November 2026.</p>
+      <p>Age groups describe the main audience of each channel, not the age or preferences of individual viewers. Thumbnail samples are design studies made for this project.</p>
+    </div>
+    <div>
+      <p><b>Contact</b></p>
+      <button type="button" class="copy" id="copy-mail" aria-label="Copy email address">yangdotori@g.skku.edu</button>
+      <p id="copy-msg" style="font-size:13px;margin-top:6px" aria-live="polite"></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ---------- hero toggle ---------- */
+  var heroNotes={y:"Busy study-notes background, short hook in a highlighted box.",o:"Plain split background, bigger title on a flat color panel."};
+  function setHero(v){
+    document.getElementById('hero-y').setAttribute('aria-pressed',v==='y');
+    document.getElementById('hero-o').setAttribute('aria-pressed',v==='o');
+    document.getElementById('hero-img-y').classList.toggle('off',v!=='y');
+    document.getElementById('hero-img-o').classList.toggle('off',v!=='o');
+    document.getElementById('hero-tag').textContent=v==='y'?'18–34':'65+';
+    document.getElementById('hero-note').textContent=heroNotes[v];
+  }
+  document.querySelectorAll('.seg button').forEach(function(b){b.addEventListener('click',function(){setHero(b.dataset.v)})});
+
+  /* ---------- samples ---------- */
+  var samples=[
+    {key:'poet',title:'Poetry reading',text:'On-image text: "Poet Shim Bo-seon · Reading ‘Fifteen Seconds Without Sorrow’" (65+ version adds "Late-night radio with Kang Seo-jeong")',
+      y:['Full-bleed reading-room scene','Small title over the photo','Warm, bright lighting'],
+      o:['Solid green text panel','Large high-contrast title','Program name inside the panel']},
+    {key:'film',title:'Learning Chinese with film lines',text:'On-image text: "Learn from the voice of a Chinese actress · A film’s famous Chinese lines, Part 2"',
+      y:['Bright seaside still','Brush-style title on a light sky','Text kept inside the scene'],
+      o:['Navy diagonal panel behind the text','Yellow and white text for contrast','Larger, heavier title']},
+    {key:'grammar',title:'English grammar lesson',text:'On-image text: "-ing, -ed, to-infinitives, base verbs · Learn this one thing and you’ve got it all!"',
+      y:['Study-notes collage background','Hook in a highlighted box','Many small details'],
+      o:['Cream panel with navy split','Fewer background details','Bigger, two-color title']},
+    {key:'announce',title:'Channel announcement',text:'On-image text: "Big announcement"',
+      y:['Bright studio scene with a mic','Title placed over the photo','Light, airy palette'],
+      o:['Gray and teal split background','Heavy black title on flat color','Person moved to one side']}
+  ];
+  var list=document.getElementById('sample-list');
+  samples.forEach(function(s){
+    var el=document.createElement('article');el.className='sample';
+    function fig(v){
+      var lab=v==='y'?'18–34':'65+';
+      return '<figure class="'+v+'"><div class="thumb"><img loading="lazy" width="1280" height="720" src="assets/'+s.key+'-'+(v==='y'?'1834':'65')+'.jpg" alt="'+s.title+', '+lab+' version"><span class="tag">'+lab+'</span></div>'+
+        '<figcaption><span class="pill '+v+'" style="justify-self:start"><span class="dot '+v+'"></span>Designed for '+lab+'</span><ul class="changes">'+s[v].map(function(c){return '<li>'+c+'</li>'}).join('')+'</ul></figcaption></figure>';
+    }
+    el.innerHTML='<div class="sample-head"><h3>'+s.title+'</h3><p class="tr">'+s.text+'</p></div><div class="pair">'+fig('y')+fig('o')+'</div>';
+    list.appendChild(el);
+  });
+
+  /* ---------- feature explorer ---------- */
+  var CATS=['EDU','HEALTH','LIFESTYLE','SOCIETY'];
+  var F=[
+   {g:'Thumbnail',k:'text',l:'Text area ratio',d:3,v:[[.265,.396,'***'],[.227,.344,'***'],[.189,.372,'***'],[.247,.347,'***']],n:'65+ thumbnails give more of the frame to on-image text in every category.'},
+   {g:'Thumbnail',k:'tbsat',l:'Text–background saturation gap',d:1,v:[[13.78,26.85,'***'],[12.65,25.15,'***'],[-5.86,9.74,'***'],[17.29,36.68,'***']],n:'Text stands out more sharply from its background in 65+ thumbnails, in all four categories.'},
+   {g:'Thumbnail',k:'tbent',l:'Text–background entropy gap',d:3,v:[[.155,.676,'***'],[.148,.489,'***'],[-.027,.488,'***'],[.240,.582,'***']],n:'Text regions in 65+ thumbnails are visually busier than the background around them.'},
+   {g:'Thumbnail',k:'bright',l:'Color brightness',d:1,v:[[134.28,100.98,'***'],[136.85,131.57,'***'],[122.01,118.36,'**'],[123.19,119.21,'*']],n:'18–34 thumbnails are brighter in every category. The gap is widest in EDU.'},
+   {g:'Thumbnail',k:'sat',l:'Color saturation',d:1,v:[[75.41,84.34,'***'],[69.55,85.65,'***'],[95.79,98.54,'*'],[79.84,92.56,'***']],n:'65+ thumbnails use more saturated color in all four categories.'},
+   {g:'Thumbnail',k:'ent',l:'Color entropy',d:3,v:[[2.152,2.232,'**'],[2.256,2.342,'***'],[2.073,2.270,'***'],[2.390,2.514,'***']],n:'65+ thumbnails use a wider spread of hues.'},
+   {g:'Thumbnail',k:'tsat',l:'Text-region saturation',d:1,v:[[90.06,105.16,'***'],[82.91,107.51,'***'],[91.96,111.29,'***'],[96.94,122.54,'***']],n:'On-image text is more saturated in 65+ thumbnails.'},
+   {g:'Thumbnail',k:'tbr',l:'Text-region brightness',d:1,v:[[146.35,113.94,'***'],[149.56,141.89,'***'],[139.86,131.37,'***'],[134.67,127.06,'***']],n:'Text areas are brighter in 18–34 thumbnails, matching their lighter overall tone.'},
+   {g:'Thumbnail',k:'tent',l:'Text-region entropy',d:3,v:[[2.236,2.600,'***'],[2.355,2.565,'***'],[2.049,2.520,'***'],[2.535,2.784,'***']],n:'Text areas in 65+ thumbnails mix more colors.'},
+   {g:'Thumbnail',k:'ai',l:'AI-generated score',d:3,v:[[.376,.558,'***'],[.269,.387,'***'],[.569,.666,'***'],[.281,.512,'***']],n:'A detector score, not proof of how an image was made. It is higher for 65+ thumbnails in every category.'},
+   {g:'Thumbnail',k:'age',l:'Estimated face age',d:1,v:[[29.39,41.19,'***'],[26.23,33.70,'***'],[29.48,31.18,'p=.050'],[30.07,35.70,'***']],n:'Faces in 65+ thumbnails look older. In LIFESTYLE the gap becomes significant after removing Buddha statues misread as faces.'},
+   {g:'Thumbnail',k:'person',l:'Person area ratio',d:3,v:[[.175,.176,'n.s.'],[.209,.165,'***'],[.097,.114,'***'],[.227,.255,'***']],n:'No single direction: larger for 65+ in LIFESTYLE and SOCIETY, larger for 18–34 in HEALTH, no difference in EDU.'},
+   {g:'Thumbnail',k:'warm',l:'Warm-color share',d:3,v:[[.641,.712,'***'],[.669,.645,'*'],[.540,.662,'***'],[.621,.634,'n.s.']],n:'Mixed: warmer for 65+ in EDU and LIFESTYLE, slightly cooler in HEALTH, no difference in SOCIETY.'},
+   {g:'Title',k:'chars',l:'Character count',d:1,v:[[29.32,41.02,'***'],[33.78,33.99,'n.s.'],[37.91,44.87,'***'],[29.75,40.08,'***']],n:'65+ titles are longer in EDU, LIFESTYLE and SOCIETY. In HEALTH the gap disappears.'},
+   {g:'Title',k:'words',l:'Word count',d:2,v:[[8.98,12.64,'***'],[9.30,9.88,'**'],[11.32,12.94,'***'],[8.47,11.27,'***']],n:'65+ titles use more words in every category.'},
+   {g:'Title',k:'native',l:'Native-Korean word share',d:3,v:[[.200,.232,'***'],[.193,.213,'*'],[.215,.237,'**'],[.176,.224,'***']],n:'65+ titles draw more on native Korean vocabulary, significantly so in all four categories.'},
+   {g:'Title',k:'sentence',l:'Complete-sentence titles',d:3,v:[[.392,.424,'n.s.'],[.400,.490,'***'],[.345,.402,'*'],[.348,.393,'*']],n:'65+ titles more often end as a full sentence.'},
+   {g:'Title',k:'list',l:'List pattern ("5 ways…")',d:3,v:[[.089,.210,'***'],[.090,.121,'*'],[.046,.099,'***'],[.051,.063,'n.s.']],n:'65+ titles more often preview their structure with a number, such as "3 foods" or "5 ways."'},
+   {g:'Title',k:'brackets',l:'Bracket count',d:3,v:[[.826,.502,'***'],[.643,.492,'***'],[.732,.521,'***'],[.734,.622,'n.s.']],n:'18–34 titles use more brackets, such as [Review] or [Vlog], except in SOCIETY.'},
+   {g:'Title',k:'emoji',l:'Emoji count',d:3,v:[[.131,.083,'***'],[.405,.132,'***'],[.418,.177,'***'],[.124,.073,'***']],n:'18–34 titles use more emojis in every category.'},
+   {g:'Title',k:'loan',l:'Loanword share',d:3,v:[[.039,.027,'n.s.'],[.113,.066,'***'],[.042,.018,'***'],[.044,.034,'n.s.']],n:'18–34 titles use more loanwords, most clearly in HEALTH and LIFESTYLE.'}
+  ];
+  var chips=document.getElementById('chips');
+  ['Thumbnail','Title'].forEach(function(g){
+    var wrap=document.createElement('div');wrap.className='chip-group';
+    wrap.innerHTML='<span class="eyebrow">'+g+' features</span>';
+    F.filter(function(f){return f.g===g}).forEach(function(f){
+      var b=document.createElement('button');b.type='button';b.className='chip';b.id='chip-'+f.k;b.textContent=f.l;
+      b.setAttribute('aria-pressed','false');b.addEventListener('click',function(){draw(f.k)});wrap.appendChild(b);
+    });
+    chips.appendChild(wrap);
+  });
+  function nice(min,max){
+    var span=max-min, step=Math.pow(10,Math.floor(Math.log10(span/4)));
+    [1,2,2.5,5,10].some(function(m){if(span/(step*m)<=5){step=step*m;return true}});
+    return {lo:Math.floor(min/step)*step,hi:Math.ceil(max/step)*step,step:step};
+  }
+  function fmt(x,d){return (Math.abs(x)<1&&d===3?x.toFixed(3).replace(/^(-?)0\./,'$1.'):x.toFixed(d))}
+  var svg=document.getElementById('chart');
+  function draw(k){
+    var f=F.find(function(x){return x.k===k});
+    document.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed',c.id==='chip-'+k)});
+    document.getElementById('chart-title').textContent=f.l;
+    document.getElementById('chart-note').textContent=f.n;
+    var all=[];f.v.forEach(function(r){all.push(r[0],r[1])});
+    var mn=Math.min.apply(null,all),mx=Math.max.apply(null,all),pad=(mx-mn)*.12||1;
+    var s=nice(mn-pad,mx+pad);
+    var W=Math.round(Math.max(330,Math.min(640,svg.clientWidth||640)));
+    svg.setAttribute('viewBox','0 0 '+W+' 260');
+    var L=W<480?88:104,R=W-(W<480?40:72),T=20,rowH=52;
+    function x(v){return L+(v-s.lo)/(s.hi-s.lo)*(R-L)}
+    var h='';
+    for(var t=s.lo;t<=s.hi+1e-9;t+=s.step){
+      var xx=x(t);h+='<line x1="'+xx+'" x2="'+xx+'" y1="'+(T-6)+'" y2="'+(T+rowH*4-14)+'" stroke="var(--line)" stroke-width="1"/>'+
+        '<text class="tick" x="'+xx+'" y="'+(T+rowH*4+4)+'" text-anchor="middle">'+fmt(+t.toFixed(6),s.step>=1?0:f.d)+'</text>';
+    }
+    f.v.forEach(function(r,i){
+      var y=T+12+i*rowH, xy=x(r[0]), xo=x(r[1]), left=Math.min(xy,xo), right=Math.max(xy,xo);
+      var yLeft=xy<=xo;
+      h+='<text class="cat" x="0" y="'+(y+4)+'">'+CATS[i]+'</text>';
+      h+='<line x1="'+xy+'" x2="'+xo+'" y1="'+y+'" y2="'+y+'" stroke="var(--muted)" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/>';
+      h+='<circle cx="'+xy+'" cy="'+y+'" r="8" fill="var(--young)" stroke="var(--surface)" stroke-width="2"/>';
+      h+='<circle cx="'+xo+'" cy="'+y+'" r="8" fill="var(--old)" stroke="var(--surface)" stroke-width="2"/>';
+      var close=right-left<70;
+      h+='<text class="val" x="'+(yLeft?left:right)+'" y="'+(y-14)+'" text-anchor="'+(close?(yLeft?'end':'start'):'middle')+'" fill="var(--young-ink)" style="fill:var(--young-ink)">'+fmt(r[0],f.d)+'</text>';
+      h+='<text class="val" x="'+(yLeft?right:left)+'" y="'+(y-14)+'" text-anchor="'+(close?(yLeft?'start':'end'):'middle')+'" style="fill:var(--old-ink)">'+fmt(r[1],f.d)+'</text>';
+      h+='<text class="sig" x="'+W+'" y="'+(y+4)+'" text-anchor="end">'+r[2]+'</text>';
+    });
+    svg.innerHTML=h;
+  }
+  var cur='text';
+  var _draw=draw; draw=function(k){cur=k;_draw(k)};
+  draw('text');
+  var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){draw(cur)},120)});
+
+  /* ---------- categories ---------- */
+  var C={
+   EDU:{sub:'Psychology education',n:'2,496',acc:'82.2%',f1:['.681','.817'],
+     y:{sem:'Learning and self-improvement',words:['Review','Psychology','Motivation','Success','Self-development','Common sense','Education','Problem'],scene:'Digital interaction and public speaking',cues:'laptop, screen, computer, phone, microphone'},
+     o:{sem:'Life stage and relational advice',words:['Dementia','Fortune-telling','Famous quote','Advice','Relationships','Mind','Age','Philosophy'],scene:'Study props and expository setting',cues:'chair, bookshelf'},
+     prev:[['Expressive cartoons',3.45,0.08,'0.02','.003'],['Phone interaction',4.01,1.52,'0.36','.004'],['Public speaking / microphone',4.57,1.28,'0.29','.011']],
+     notes:['EDU shows the largest title-length gap of all four categories: 29.3 vs 41.0 characters (Cliff’s δ = +.403).','It also has the widest brightness gap (134 vs 101) and the oldest estimated faces in 65+ thumbnails (41.2 vs 29.4 years). Person area does not differ (p = .697).']},
+   HEALTH:{sub:'Wellness',n:'2,500',acc:'72.1%',f1:['.635','.719'],
+     y:{sem:'Bodily management practices',words:['Lose weight','Exercise','Diet','Dance','Vlog','Obesity','Meal plan','Start'],scene:'Mirror selfie and self-presentation',cues:'face, mirror, smile'},
+     o:{sem:'Conditions and treatment',words:['Blood sugar','Diabetes','Health','Food','Effect','Recommend','Method','Reason'],scene:'Illness and food-related explanation',cues:'blood, vegetables, pointing'},
+     prev:[['Mirror selfie / self-expression',3.84,0.16,'0.04','< .001']],
+     notes:['Title length stops mattering here (δ = +.001). Word origin takes over: Sino-Korean words rise for 65+ (δ = +.202) and loanwords for 18–34 (δ = −.201).','This is the one category where 18–34 thumbnails show more of the person (person area .209 vs .165), in line with fitness and self-presentation imagery.']},
+   LIFESTYLE:{sub:'Meditation',n:'1,990',acc:'86.7%',f1:['.629','.837'],
+     y:{sem:'Induced calm state',words:['Induction','Comfort','Time','Vanish','Monk','Deep sleep','Anxiety','Attract'],scene:'Natural or ambient scenes',cues:'relaxation, sky'},
+     o:{sem:'Religious practice',words:['Wisdom','Advice','Take care','Practice','Meditation','Buddhism','Relief','Stress'],scene:'Buddhist and meditation symbolism',cues:'Buddha, prayer, mountains'},
+     prev:[['Natural landscapes',14.57,4.02,'0.35','< .001'],['Buddhist / meditation symbols',1.81,18.09,'12.97','< .001'],['Text-only graphics',1.01,3.12,'3.13','.015']],
+     notes:['Both groups make meditation content, but 18–34 channels sell the state it brings (sleep, comfort), while 65+ channels show religious practice.','The thumbnail classifier is most accurate here (86.7%), and the title language model reaches its best F1 (.837).']},
+   SOCIETY:{sub:'Current affairs',n:'2,600',acc:'74.9%',f1:['.644','.746'],
+     y:{sem:'Content genre and figures',words:['Episode','Lawyer','True story','Man','Woman','Overseas','Video','Story'],scene:'Active or event-centered scenes',cues:'playing, gun, stage'},
+     o:{sem:'Family relations and conflict',words:['Shock','Moved','Divorce','Husband','Daughter-in-law','Wife','Son','Love'],scene:'Interpersonal conflict and negative affect',cues:'formal, elderly, statue'},
+     prev:[['Intense interpersonal interaction',1.23,5.31,'3.52','< .001'],['Negative facial expressions',1.46,3.62,'2.48','.009']],
+     notes:['65+ thumbnails show the strongest text–background saturation gap of any category (36.7 vs 17.3) and a much higher AI-generated score (.512 vs .281).','Titles are longer for 65+ (40.1 vs 29.8 characters), but bracket use no longer separates the groups.']}
+  };
+  var tabs=document.getElementById('tabs'),panel=document.getElementById('cat-panel');
+  CATS.forEach(function(c){
+    var b=document.createElement('button');b.type='button';b.className='tab';b.id='tab-'+c;b.setAttribute('role','tab');b.textContent=c;
+    b.addEventListener('click',function(){showCat(c)});
+    b.addEventListener('keydown',function(e){
+      var i=CATS.indexOf(c);
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();var n=CATS[(i+(e.key==='ArrowRight'?1:3))%4];showCat(n);document.getElementById('tab-'+n).focus()}
+    });
+    tabs.appendChild(b);
+  });
+  function side(d,v){
+    var lab=v==='y'?'18–34 channels':'65+ channels';
+    return '<div class="'+v+'"><h3>'+lab+'</h3>'+
+      '<p class="lbl">Title words</p><p class="theme">'+d.sem+'</p><div class="words" style="margin-top:8px">'+d.words.map(function(w,i){return '<span'+(i<2?' class="big"':'')+'>'+w+'</span>'}).join('')+'</div>'+
+      '<p class="lbl">Thumbnail scenes</p><p class="theme">'+d.scene+'</p><p class="cues">Key caption words: '+d.cues+'</p></div>';
+  }
+  function showCat(c){
+    var d=C[c];
+    CATS.forEach(function(k){var t=document.getElementById('tab-'+k);t.setAttribute('aria-selected',k===c);t.tabIndex=k===c?0:-1});
+    panel.setAttribute('aria-labelledby','tab-'+c);
+    var mx=Math.max.apply(null,d.prev.map(function(p){return Math.max(p[1],p[2])}));
+    var prev=d.prev.map(function(p){
+      return '<div class="prev-row"><div class="nm"><span>'+p[0]+'</span><small>OR '+p[3]+' · FDR p '+p[4]+'</small></div>'+
+        '<div class="prev-bar"><span>18–34</span><div><i style="width:'+(p[1]/mx*100)+'%;background:var(--young)"></i></div></div>'+
+        '<div class="prev-bar"><span>65+</span><div><i style="width:'+(p[2]/mx*100)+'%;background:var(--old)"></i></div></div>'+
+        '<div class="prev-bar"><span></span><span class="num">'+p[1].toFixed(2)+'% vs '+p[2].toFixed(2)+'%</span></div></div>';
+    }).join('');
+    panel.innerHTML='<div class="cat-top"><span class="pill">Subcategory: <b>'+d.sub+'</b></span><span class="pill num">'+d.n+' videos</span><span class="pill m num">Thumbnail-only accuracy '+d.acc+'</span></div>'+
+      '<div class="vs">'+side(d.y,'y')+side(d.o,'o')+'</div>'+
+      '<div class="cat-extra"><div class="panel"><h3>Scene themes that differ significantly</h3><div class="prev">'+prev+'</div>'+
+      '<p style="font-size:13px;color:var(--muted);margin-top:12px">Share of thumbnails showing each theme. OR above 1 means more common in 65+ thumbnails.</p></div>'+
+      '<div class="callout"><h3>What stands out in '+c+'</h3><p>'+d.notes[0]+'</p><p>'+d.notes[1]+'</p>'+
+      '<div class="f1"><span>Title F1, 26 features: <b>'+d.f1[0]+'</b></span><span>Title F1, language model: <b>'+d.f1[1]+'</b></span></div></div></div>';
+  }
+  var start='EDU';
+  try{var h=(location.hash||'').replace('#','').toUpperCase();if(CATS.indexOf(h)>-1)start=h}catch(e){}
+  showCat(start);
+
+  /* ---------- copy email ---------- */
+  document.getElementById('copy-mail').addEventListener('click',function(){
+    var msg=document.getElementById('copy-msg'),t='yangdotori@g.skku.edu';
+    function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById('copy-mail'));var s=window.getSelection();s.removeAllRanges();s.addRange(r)}
+    try{navigator.clipboard.writeText(t).then(function(){msg.textContent='Copied.'},function(){sel();msg.textContent='Selected. Press Ctrl+C or ⌘C to copy.'})}
+    catch(e){sel();msg.textContent='Selected. Press Ctrl+C or ⌘C to copy.'}
+  });
+})();
+</script>
+
+</body>
+</html>
